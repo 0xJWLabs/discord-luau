@@ -8,13 +8,71 @@
 ]=]
 
 local apiTypes = require("../lune_packages/api_types")
+local state = require("../lune_packages/state")
+local rest = require("../lune_packages/rest")
+local future = require("../luau_packages/future")
+local message = require("./message/message")
 
 local user = require("./user")
+local channelBehaviour = require("./channels/behaviour/channel")
+
+type WebhookModify = {
+	name: string?,
+	avatar: string?,
+	channel: channelBehaviour.ChannelBehaviour?,
+	reason: string?,
+}
 
 local Webhook = {}
 
 Webhook.Interface = {}
 Webhook.Prototype = {}
+
+function Webhook.Prototype.createMessageAsync(self: Webhook, data: apiTypes.ExecuteWebhookRequest)
+	return future.Future.new(function()
+		local request = self.state.rest:newRequest()
+
+		request:setFlag("FormdataRequest", true)
+
+		local response = rest.webhook.executeWebhookAsync(request, self.id, self.token :: string, data, {}):await()
+
+		assert(response:isOk(), tostring(response:unwrapErr()))
+
+		return message.new(self.state, response:unwrapOk())
+	end) :: future.FutureLike<string, message.Message>
+end
+
+function Webhook.Prototype.edit(self: Webhook, data: WebhookModify): future.FutureLike<string, Webhook>
+	return future.Future.new(function()
+		local data: WebhookModify = data or {} :: WebhookModify
+
+		local channel = if data.channel and data.channel.id then data.channel.id else data.channel
+		local request = self.state.rest:newRequest()
+		local response = not self.token
+				and rest.webhook
+					.modifyWebhookAsync(request, self.id, {
+						name = data.name or self.name,
+						avatar = data.avatar or self.avatar,
+						channel_id = channel or self.channelId,
+					}, data.reason)
+					:await()
+			or rest.webhook
+				.modifyWebhookWithTokenAsync(request, self.id, self.token :: string, {
+					name = data.name or self.name,
+					avatar = data.avatar or self.avatar,
+					channel_id = channel or self.channelId,
+				}, data.reason)
+				:await()
+
+		assert(response:isOk(), tostring(response:unwrapErr()))
+		local unwrappedResponse = response:unwrapOk()
+		self.name = unwrappedResponse.name
+		self.avatar = unwrappedResponse.avatar
+		self.channelId = unwrappedResponse.channel_id
+
+		return self
+	end) :: future.FutureLike<string, Webhook>
+end
 
 --[=[
 	@within Classes.Webhook
@@ -101,8 +159,13 @@ end
 
 	Responsible for constructing this class.
 ]=]
-function Webhook.Interface.new(webhookData: apiTypes.WebhookObject): Webhook
-	local self = setmetatable({} :: Webhook, { __index = Webhook.Prototype })
+function Webhook.Interface.new(state, webhookData: apiTypes.WebhookObject): Webhook
+	local self = setmetatable(
+		{
+			state = state,
+		} :: Webhook,
+		{ __index = Webhook.Prototype }
+	)
 
 	if webhookData then
 		self:sync(webhookData)
@@ -122,6 +185,8 @@ export type Webhook = typeof(Webhook.Prototype) & {
 	token: string?,
 	applicationId: apiTypes.Snowflake?,
 	url: string?,
+} & {
+	state: state.State,
 }
 
 return Webhook.Interface
