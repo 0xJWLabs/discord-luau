@@ -641,7 +641,7 @@ function Bot.Prototype.getWebhookAsync(
 
 		assert(response:isOk(), tostring(response:unwrapErr()))
 
-		return classes.webhook.new(response:unwrapOk())
+		return classes.webhook.new(self.state, response:unwrapOk())
 	end) :: future.FutureLike<string, classes.Webhook>
 end
 
