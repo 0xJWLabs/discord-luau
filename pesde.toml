@@ -13,7 +13,7 @@ authors = [
 workspace_members = ["packages/*"]
 
 [engine]
-lune = "^0.9.3"
+lune = "^0.9.4"
 
 [target]
 environment = "lune"
