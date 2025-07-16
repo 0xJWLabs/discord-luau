@@ -71,7 +71,8 @@ end
 
 	Returns a async that resolves when the connection is established.
 ]=]
-function Bot.Prototype.connectAsync(self: Bot): future.FutureLike<string, nil>
+function Bot.Prototype.login(self: Bot, token: string): future.FutureLike<string, nil>
+  self.state:setToken(token)
 	return future.Future.new(function()
 		local gatewayInformation = self:queryGatewayInformation():await()
 
@@ -667,17 +668,20 @@ end
 	Construct a new DiscordLuau object
 ]=]
 function Bot.Interface.new(options: {
-	token: string,
-	intents: number,
+	intents: number | { string },
 	reconnect: boolean?,
 	logLevel: logger.LogLevel?,
 	globalRatelimit: number?,
 })
+  if typeof(options.intents) == "table" then
+    options.intents = builders.intents.new(options.intents):build()
+  end
+
 	local self = setmetatable(
 		{
 			state = state.state.new({
-				token = options.token,
-				intents = options.intents,
+				token = nil,
+				intents = options.intents :: number,
 				logLevel = options.logLevel,
 				version = DISCORD_VERSION,
 				reconnect = options.reconnect or false,

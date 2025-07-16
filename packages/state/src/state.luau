@@ -73,21 +73,29 @@ function State.Prototype.setApplicationId(self: State, applicationId: apiTypes.S
 	self.applicationId = applicationId
 end
 
+function State.Prototype.setToken(self: State, token: string)
+  if self.token == nil then
+    local secretToken = secret.new(token)
+    self.token = secretToken
+    self.rest.token = secretToken
+    self.webSocketManager.token = secretToken
+  end
+end
+
 --[=[
 	@within State.State
 
 	Constructor for the State class.
 ]=]
 function State.Interface.new(settings: {
-	token: string,
+	token: string?,
 	intents: number,
 	version: number,
 	reconnect: boolean,
 	globalRatelimit: number,
 	logLevel: logger.LogLevel?,
 }): State
-	local secretToken = secret.new(settings.token)
-
+	local secretToken = settings.token and secret.new(settings.token) or (nil :: any) :: secret.Secret<string>
 	local self = setmetatable(
 		{
 			token = secretToken,
