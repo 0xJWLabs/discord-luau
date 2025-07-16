@@ -1,4 +1,4 @@
-local bot = require("@self/bot")
+local client = require("@self/client")
 
 --[=[
 	@class DiscordLuau
@@ -20,7 +20,7 @@ local DiscordLuau = {}
 	@prop bot DiscordLuau.bot
 	@within DiscordLuau
 ]=]
-DiscordLuau.bot = bot
-export type Bot = bot.Bot
+DiscordLuau.Client = client
+export type Client = client.Client
 
 return DiscordLuau

@@ -11,43 +11,43 @@ local builders = require("../lune_packages/builders")
 local DISCORD_VERSION = 10
 
 --[=[
-	@class DiscordLuau.Bot
+	@class DiscordLuau.Client
 	@__index Prototype
 
 	Top level documentation for the Discord-Luau library, welcome! 👋
 
 	This package will represent the entrypoint to your adventure using Discord-Luau, through this package you'll generate
-	a discord Bot object, this bot Object enables you to write discord bots for the Discord API.
+	a discord Client object, this client Object enables you to write discord bots for the Discord API.
 
 	```luau
 	local DiscordLuau = require("/path/to/discord-luau")
-	local Bot = DiscordLuau.bot -- This module!
+	local Client = DiscordLuau.Client -- This module!
 
-	local discordBot = Bot.new({
+	local discordClient = Client.new({
 		token = env.DISCORD_BOT_TOKEN,
 		reconnect = env.IS_PRODUCTION,
 		intents = 513, -- Guild, GuildMessages
 	})
 
-	discordBot:connectAsync():await()
+	discordBot:login(env.DISCORD_BOT_TOKEN):await()
 
-	print(`Bot has connected: '{discordBot.user.username}'`)
+	print(`Client has connected: '{discordClient.user.username}'`)
 	```
 ]=]
-local Bot = {}
+local Client = {}
 
-Bot.Interface = {}
-Bot.Prototype = {}
+Client.Interface = {}
+Client.Prototype = {}
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Queries the Discord Gateway for bot information.
 	
 	This function sends a request to the Discord Gateway to retrieve information
 	about the bot, such as the recommended number of shards and session start limit.
 ]=]
-function Bot.Prototype.queryGatewayInformation(self: Bot): future.FutureLike<string, apiTypes.GetGatewayBotResponse>
+function Client.Prototype.queryGatewayInformation(self: Client): future.FutureLike<string, apiTypes.GetGatewayBotResponse>
 	return future.Future.new(function()
 		local request = self.state.rest:newRequest()
 
@@ -60,7 +60,7 @@ function Bot.Prototype.queryGatewayInformation(self: Bot): future.FutureLike<str
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Connects the bot to the Discord gateway asynchronously.
 
@@ -71,7 +71,7 @@ end
 
 	Returns a async that resolves when the connection is established.
 ]=]
-function Bot.Prototype.login(self: Bot, token: string): future.FutureLike<string, nil>
+function Client.Prototype.login(self: Client, token: string): future.FutureLike<string, nil>
   self.state:setToken(token)
 	return future.Future.new(function()
 		local gatewayInformation = self:queryGatewayInformation():await()
@@ -330,13 +330,13 @@ function Bot.Prototype.login(self: Bot, token: string): future.FutureLike<string
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Returns the classes.guild object for the given id. If with_counts is set to true, this endpoint will also return
 	approximate_member_count and approximate_presence_count for the classes.guild.
 ]=]
-function Bot.Prototype.getGuildAsync(
-	self: Bot,
+function Client.Prototype.getGuildAsync(
+	self: Client,
 	guildId: string,
 	withCount: boolean?
 ): future.FutureLike<string, classes.Guild>
@@ -362,14 +362,14 @@ function Bot.Prototype.getGuildAsync(
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Returns a channel object for the given channel ID.
 
 	This function sends a request to the Discord API to retrieve information about a channel.
 	The channel type is determined by the generic type parameter T.
 ]=]
-function Bot.Prototype.getChannelAsync<T>(self: Bot, channelId: string): future.FutureLike<string, classes.Channel>
+function Client.Prototype.getChannelAsync<T>(self: Client, channelId: string): future.FutureLike<string, classes.Channel>
 	return future.Future.new(function()
 		local cachedChannelIdData = self.state.cache.channels:get(channelId)
 
@@ -388,13 +388,13 @@ function Bot.Prototype.getChannelAsync<T>(self: Bot, channelId: string): future.
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Returns a DM channel object for the given channel ID.
 
 	This function sends a request to the Discord API to retrieve information about a DM channel.
 ]=]
-function Bot.Prototype.getDMChannelAsync(self: Bot, channelId: string): future.FutureLike<string, classes.DM>
+function Client.Prototype.getDMChannelAsync(self: Client, channelId: string): future.FutureLike<string, classes.DM>
 	return future.Future.new(function()
 		local channel = self:getChannelAsync(channelId):await():unwrapOk()
 
@@ -403,13 +403,13 @@ function Bot.Prototype.getDMChannelAsync(self: Bot, channelId: string): future.F
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Returns a Group DM channel object for the given channel ID.
 
 	This function sends a request to the Discord API to retrieve information about a Group DM channel.
 ]=]
-function Bot.Prototype.getGroupDMChannelAsync(self: Bot, channelId: string): future.FutureLike<string, classes.GroupDM>
+function Client.Prototype.getGroupDMChannelAsync(self: Client, channelId: string): future.FutureLike<string, classes.GroupDM>
 	return future.Future.new(function()
 		local channel = self:getChannelAsync(channelId):await():unwrapOk()
 
@@ -418,14 +418,14 @@ function Bot.Prototype.getGroupDMChannelAsync(self: Bot, channelId: string): fut
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Returns an announcement channel object for the given channel ID.
 
 	This function sends a request to the Discord API to retrieve information about an announcement channel.
 ]=]
-function Bot.Prototype.getAnnouncementChannelAsync(
-	self: Bot,
+function Client.Prototype.getAnnouncementChannelAsync(
+	self: Client,
 	channelId: string
 ): future.FutureLike<string, classes.GuildAnnouncement>
 	return future.Future.new(function()
@@ -436,14 +436,14 @@ function Bot.Prototype.getAnnouncementChannelAsync(
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Returns a category channel object for the given channel ID.
 
 	This function sends a request to the Discord API to retrieve information about a category channel.
 ]=]
-function Bot.Prototype.getCategoryChannelAsync(
-	self: Bot,
+function Client.Prototype.getCategoryChannelAsync(
+	self: Client,
 	channelId: string
 ): future.FutureLike<string, classes.GuildCategory>
 	return future.Future.new(function()
@@ -454,14 +454,14 @@ function Bot.Prototype.getCategoryChannelAsync(
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Returns a directory channel object for the given channel ID.
 
 	This function sends a request to the Discord API to retrieve information about a directory channel.
 ]=]
-function Bot.Prototype.getDirectoryChannelAsync(
-	self: Bot,
+function Client.Prototype.getDirectoryChannelAsync(
+	self: Client,
 	channelId: string
 ): future.FutureLike<string, classes.GuildDirectory>
 	return future.Future.new(function()
@@ -472,14 +472,14 @@ function Bot.Prototype.getDirectoryChannelAsync(
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Returns a stage voice channel object for the given channel ID.
 
 	This function sends a request to the Discord API to retrieve information about a stage voice channel.
 ]=]
-function Bot.Prototype.getStageVCChannelAsync(
-	self: Bot,
+function Client.Prototype.getStageVCChannelAsync(
+	self: Client,
 	channelId: string
 ): future.FutureLike<string, classes.GuildStageVoice>
 	return future.Future.new(function()
@@ -490,13 +490,13 @@ function Bot.Prototype.getStageVCChannelAsync(
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Returns a text channel object for the given channel ID.
 
 	This function sends a request to the Discord API to retrieve information about a text channel.
 ]=]
-function Bot.Prototype.getTextChannelAsync(self: Bot, channelId: string): future.FutureLike<string, classes.GuildText>
+function Client.Prototype.getTextChannelAsync(self: Client, channelId: string): future.FutureLike<string, classes.GuildText>
 	return future.Future.new(function()
 		local channel = self:getChannelAsync(channelId):await():unwrapOk()
 
@@ -505,14 +505,14 @@ function Bot.Prototype.getTextChannelAsync(self: Bot, channelId: string): future
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Returns a text channel object for the given channel ID.
 
 	This function sends a request to the Discord API to retrieve information about a text channel.
 ]=]
-function Bot.Prototype.getForumChannelAsync(
-	self: Bot,
+function Client.Prototype.getForumChannelAsync(
+	self: Client,
 	channelId: string
 ): future.FutureLike<string, classes.ThreadForum>
 	return future.Future.new(function()
@@ -523,14 +523,14 @@ function Bot.Prototype.getForumChannelAsync(
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Returns a text channel object for the given channel ID.
 
 	This function sends a request to the Discord API to retrieve information about a text channel.
 ]=]
-function Bot.Prototype.getMediaChannelAsync(
-	self: Bot,
+function Client.Prototype.getMediaChannelAsync(
+	self: Client,
 	channelId: string
 ): future.FutureLike<string, classes.ThreadMedia>
 	return future.Future.new(function()
@@ -541,13 +541,13 @@ function Bot.Prototype.getMediaChannelAsync(
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Returns a user object for the given user ID.
 
 	This function sends a request to the Discord API to retrieve information about a user. 
 ]=]
-function Bot.Prototype.getUserAsync(self: Bot, userId: string): future.FutureLike<string, classes.User>
+function Client.Prototype.getUserAsync(self: Client, userId: string): future.FutureLike<string, classes.User>
 	return future.Future.new(function()
 		local cachedUserData = self.state.cache.users:get(userId)
 
@@ -570,12 +570,12 @@ function Bot.Prototype.getUserAsync(self: Bot, userId: string): future.FutureLik
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Will create a new Guild instance, returns this instance.
 ]=]
-function Bot.Prototype.createGuildAsync(
-	self: Bot,
+function Client.Prototype.createGuildAsync(
+	self: Client,
 	guildData: builders.guildJSON & {
 		name: string,
 	}
@@ -592,11 +592,11 @@ function Bot.Prototype.createGuildAsync(
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Will set the Log Level for the bot, and all instantiated objects within the bot.
 ]=]
-function Bot.Prototype.setLogLevel(self: Bot, logLevel: logger.LogLevel)
+function Client.Prototype.setLogLevel(self: Client, logLevel: logger.LogLevel)
 	self.logger:setLogLevel(logLevel)
 
 	self.state.webSocketManager.logger:setLogLevel(logLevel)
@@ -608,13 +608,13 @@ function Bot.Prototype.setLogLevel(self: Bot, logLevel: logger.LogLevel)
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Returns a voice channel object for the given channel ID.
 
 	This function sends a request to the Discord API to retrieve information about a voice channel.
 ]=]
-function Bot.Prototype.getVoiceChannelAsync(self: Bot, channelId: string): future.FutureLike<string, classes.GuildVoice>
+function Client.Prototype.getVoiceChannelAsync(self: Client, channelId: string): future.FutureLike<string, classes.GuildVoice>
 	return future.Future.new(function()
 		local channel = self:getChannelAsync(channelId):await():unwrapOk()
 
@@ -623,14 +623,14 @@ function Bot.Prototype.getVoiceChannelAsync(self: Bot, channelId: string): futur
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Returns a webhook object for the given webhookId and optional webhookToken.
 
 	This function sends a request to the Discord API to retrieve information about a webhook.
 ]=]
-function Bot.Prototype.getWebhookAsync(
-	self: Bot,
+function Client.Prototype.getWebhookAsync(
+	self: Client,
 	webhookId: string,
 	webhookToken: string?
 ): future.FutureLike<string, classes.Webhook>
@@ -647,7 +647,7 @@ function Bot.Prototype.getWebhookAsync(
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Allows you to set the presence for the Discord Bot.
 
@@ -658,17 +658,17 @@ end
 		Due to this zombified state - presences may be delayed, or won't render immediately
 	:::
 ]=]
-function Bot.Prototype.setPresenceAsync(self: Bot, presence: builders.presenceJSON)
+function Client.Prototype.setPresenceAsync(self: Client, presence: builders.presenceJSON)
 	return self.state.webSocketManager:sendAsync(apiTypes.gateway.opcodes.PresenceUpdate, presence)
 end
 
 --[=[
-	@within DiscordLuau.Bot
+	@within DiscordLuau.Client
 
 	Construct a new DiscordLuau object
 ]=]
-function Bot.Interface.new(options: {
-	intents: number | { string },
+function Client.Interface.new(options: {
+	intents: number | { apiTypes.Intent },
 	reconnect: boolean?,
 	logLevel: logger.LogLevel?,
 	globalRatelimit: number?,
@@ -743,8 +743,8 @@ function Bot.Interface.new(options: {
 			onComponentInteraction = emitter.new(),
 			onAutocompleteInteraction = emitter.new(),
 			onModalInteraction = emitter.new(),
-		} :: Bot,
-		{ __index = Bot.Prototype }
+		} :: Client,
+		{ __index = Client.Prototype }
 	)
 
 	if options.logLevel then
@@ -754,270 +754,270 @@ function Bot.Interface.new(options: {
 	return self
 end
 
-export type Bot =
-	typeof(Bot.Prototype)
+export type Client =
+	typeof(Client.Prototype)
 	& {
 		--[=[
 			@prop state State.State
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		state: state.State,
 
 		--[=[
 			@prop logger Logger
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		logger: logger.Logger,
 
 		--[=[
 			@prop application Classes.Application?
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		application: classes.Application?,
 
 		--[=[
 			@prop user Classes.User?
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		user: classes.User?,
 
 		--[=[
 			@prop onReady Emitter<number>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onReady: emitter.Emitter<number>,
 
 		--[=[
 			@prop onAllShardsReady Emitter<()>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onAllShardsReady: emitter.Emitter<()>,
 
 		--[=[
 			@prop onMessage Emitter<Classes.Message>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onMessage: emitter.Emitter<classes.Message>,
 
 		--[=[
 			@prop onMessageChanged Emitter<Classes.Message>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onMessageChanged: emitter.Emitter<classes.Message>,
 
 		--[=[
 			@prop onMessageDeleted Emitter<{ messageId: apiTypes.Snowflake, channelId: apiTypes.Snowflake, guildId: apiTypes.Snowflake }>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onMessageDeleted: emitter.Emitter<{ messageId: apiTypes.Snowflake, channelId: apiTypes.Snowflake, guildId: apiTypes.Snowflake }>,
 
 		--[=[
 			@prop onMessageBulkDeleted Emitter<{ channelId: string, guildId: string, ids: { string } }>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onMessageBulkDeleted: emitter.Emitter<{ channelId: string, guildId: string, ids: { string } }>,
 
 		--[=[
 			@prop onGroupDMChannelCreate Emitter<Classes.GroupDM>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onGroupDMChannelCreate: emitter.Emitter<classes.GroupDM>,
 
 		--[=[
 			@prop onCategoryChannelCreate Emitter<Classes.GuildCategory>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onCategoryChannelCreate: emitter.Emitter<classes.GuildCategory>,
 
 		--[=[
 			@prop onAnnouncementChannelCreate Emitter<Classes.GuildAnnouncement>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onAnnouncementChannelCreate: emitter.Emitter<classes.GuildAnnouncement>,
 
 		--[=[
 			@prop onDirectoryChannelCreate Emitter<Classes.GuildDirectory>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onDirectoryChannelCreate: emitter.Emitter<classes.GuildDirectory>,
 
 		--[=[
 			@prop onDMChannelCreate Emitter<Classes.DM>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onDMChannelCreate: emitter.Emitter<classes.DM>,
 
 		--[=[
 			@prop onTextChannelCreate Emitter<Classes.GuildText>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onTextChannelCreate: emitter.Emitter<classes.GuildText>,
 
 		--[=[
 			@prop onVoiceChannelCreate Emitter<Classes.GuildVoice>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onVoiceChannelCreate: emitter.Emitter<classes.GuildVoice>,
 
 		--[=[
 			@prop onStageVoiceChannelCreate Emitter<Classes.GuildStageVoice>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onStageVoiceChannelCreate: emitter.Emitter<classes.GuildStageVoice>,
 
 		--[=[
 			@prop onGroupDMChannelUpdated Emitter<Classes.GroupDM>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onGroupDMChannelUpdated: emitter.Emitter<classes.GroupDM>,
 
 		--[=[
 			@prop onCategoryChannelUpdated Emitter<Classes.GuildCategory>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onCategoryChannelUpdated: emitter.Emitter<classes.GuildCategory>,
 
 		--[=[
 			@prop onAnnouncementChannelUpdated Emitter<Classes.GuildAnnouncement>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onAnnouncementChannelUpdated: emitter.Emitter<classes.GuildAnnouncement>,
 
 		--[=[
 			@prop onDirectoryChannelUpdated Emitter<Classes.GuildDirectory>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onDirectoryChannelUpdated: emitter.Emitter<classes.GuildDirectory>,
 
 		--[=[
 			@prop onDMChannelUpdated Emitter<Classes.DM>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onDMChannelUpdated: emitter.Emitter<classes.DM>,
 
 		--[=[
 			@prop onTextChannelUpdated Emitter<Classes.GuildText>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onTextChannelUpdated: emitter.Emitter<classes.GuildText>,
 
 		--[=[
 			@prop onVoiceChannelUpdated Emitter<Classes.GuildVoice>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onVoiceChannelUpdated: emitter.Emitter<classes.GuildVoice>,
 
 		--[=[
 			@prop onStageVoiceChannelUpdated Emitter<Classes.GuildStageVoice>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onStageVoiceChannelUpdated: emitter.Emitter<classes.GuildStageVoice>,
 
 		--[=[
 			@prop onGroupDMChannelDeleted Emitter<Classes.GroupDM>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onGroupDMChannelDeleted: emitter.Emitter<classes.GroupDM>,
 
 		--[=[
 			@prop onCategoryChannelDeleted Emitter<Classes.GuildCategory>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onCategoryChannelDeleted: emitter.Emitter<classes.GuildCategory>,
 
 		--[=[
 			@prop onAnnouncementChannelDeleted Emitter<Classes.GuildAnnouncement>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onAnnouncementChannelDeleted: emitter.Emitter<classes.GuildAnnouncement>,
 
 		--[=[
 			@prop onDirectoryChannelDeleted Emitter<Classes.GuildDirectory>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onDirectoryChannelDeleted: emitter.Emitter<classes.GuildDirectory>,
 
 		--[=[
 			@prop onDMChannelDeleted Emitter<Classes.DM>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onDMChannelDeleted: emitter.Emitter<classes.DM>,
 
 		--[=[
 			@prop onTextChannelDeleted Emitter<Classes.GuildText>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onTextChannelDeleted: emitter.Emitter<classes.GuildText>,
 
 		--[=[
 			@prop onVoiceChannelDeleted Emitter<Classes.GuildVoice>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onVoiceChannelDeleted: emitter.Emitter<classes.GuildVoice>,
 
 		--[=[
 			@prop onStageVoiceChannelDeleted Emitter<Classes.GuildStageVoice>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onStageVoiceChannelDeleted: emitter.Emitter<classes.GuildStageVoice>,
 
 		--[=[
 			@prop onUserUpdated Emitter<Classes.User>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onUserUpdated: emitter.Emitter<classes.User>,
 
 		--[=[
 			@prop onChannelPinsUpdate Emitter<{ guildId: string, channelId: string, lastPinTimestamp: stdPolyfills.DateTime? }>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onChannelPinsUpdate: emitter.Emitter<{ guildId: string, channelId: string, lastPinTimestamp: stdPolyfills.DateTime? }>,
 
 		--[=[
 			@prop onGuildCreate Emitter<classes.UnavailableGuild | classes.Guild>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onGuildCreate: emitter.Emitter<classes.UnavailableGuild | classes.Guild>,
 
 		--[=[
 			@prop onGuildUpdate Emitter<Classes.Guild>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onGuildUpdate: emitter.Emitter<classes.Guild>,
 
 		--[=[
 			@prop onGuildDelete Emitter<Classes.UnavailableGuild>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onGuildDelete: emitter.Emitter<classes.UnavailableGuild>,
 
 		--[=[
 			@prop onGuildMemberBanned Emitter<{ guildId: string, user: classes.User }>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onGuildMemberBanned: emitter.Emitter<{ guildId: string, user: classes.User }>,
 
 		--[=[
 			@prop onGuildMemberUnbanned Emitter<{ guildId: string, user: classes.User }>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onGuildMemberUnbanned: emitter.Emitter<{ guildId: string, user: classes.User }>,
 
 		--[=[
 			@prop onGuildMemberJoined Emitter<Classes.GuildMember & { guildId: string }>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onGuildMemberJoined: emitter.Emitter<classes.GuildMember & { guildId: string }>,
 
 		--[=[
 			@prop onGuildMemberLeft Emitter<{ guildId: string, user: classes.User }>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onGuildMemberLeft: emitter.Emitter<{ guildId: string, user: classes.User }>,
 
 		--[=[
 			@prop onGuildMemberUpdated Emitter<{guildId: stringroles: { string },user: classes.User,nick: string?,avatar: string,joinedAt: stdPolyfills.DateTime,premiumSince: stdPolyfills.DateTime,deaf: boolean?,mute: boolean?,pending: boolean?,communicationDisabledUntil: stdPolyfills.DateTime?,}>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onGuildMemberUpdated: emitter.Emitter<{
 			guildId: string,
@@ -1035,33 +1035,33 @@ export type Bot =
 
 		--[=[
 			@prop onPingInteraction Emitter<Classes.Ping>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onPingInteraction: emitter.Emitter<classes.Ping>,
 
 		--[=[
 			@prop onCommandInteraction Emitter<Classes.TypesCommand>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onCommandInteraction: emitter.Emitter<classes.TypesCommand>,
 
 		--[=[
 			@prop onComponentInteraction Emitter<Classes.Component>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onComponentInteraction: emitter.Emitter<classes.Component>,
 
 		--[=[
 			@prop onAutocompleteInteraction Emitter<Classes.Autocomplete>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onAutocompleteInteraction: emitter.Emitter<classes.Autocomplete>,
 
 		--[=[
 			@prop onModalInteraction Emitter<Classes.Modal>
-			@within DiscordLuau.Bot
+			@within DiscordLuau.Client
 		]=]
 		onModalInteraction: emitter.Emitter<classes.Modal>,
 	}
 
-return Bot.Interface
+return Client.Interface

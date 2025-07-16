@@ -5,9 +5,8 @@ local builders = require("./packages/builders/src")
 
 print(builders.intents.new({ "Guilds", "GuildMessages" }):build())
 
-local discordBot = discordLuau.bot.new({
-	token = env.DISCORD_BOT_TOKEN,
-	intents = builders.intents.new({ "Guilds", "GuildMessages" }):build(),
+local discordBot = discordLuau.Client.new({
+	intents = { "Guilds", "GuildMessages" },
 	reconnect = true,
 	logLevel = "Info",
 })
@@ -28,4 +27,4 @@ local discordBot = discordLuau.bot.new({
 -- 		:await()
 -- end)
 
-discordBot:connectAsync():await()
+discordBot:login(env.DISCORD_BOT_TOKEN):await()

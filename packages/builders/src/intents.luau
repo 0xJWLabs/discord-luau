@@ -61,7 +61,7 @@ end
 		:build()
 	```
 ]=]
-function Intents.Interface.new(intents: {}?): Intents
+function Intents.Interface.new(intents: { apiTypes.Intent }?): Intents
 	local self = setmetatable(
 		{
 			--[=[
