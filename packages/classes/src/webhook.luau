@@ -52,6 +52,7 @@ function Webhook.Prototype.edit(self: Webhook, data: WebhookModify): future.Futu
 
 		if data.avatar and not String.startsWith(data.avatar, "data:") then
 			local avatar = util.dataResolver.resolveImage(data.avatar)
+			print(avatar)
 			if avatar then
 				data.avatar = avatar
 			end
