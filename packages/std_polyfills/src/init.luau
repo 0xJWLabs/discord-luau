@@ -3,6 +3,7 @@ local serde = require("@self/serde")
 local process = require("@self/process")
 local datetime = require("@self/datetime")
 local net = require("@self/net")
+local string = require("@self/string")
 
 export type DateTime = datetime.DateTime
 
@@ -57,4 +58,10 @@ return {
 		@within StdPolyfills
 	]=]
 	net = net,
+
+	--[=[
+    @prop string StdPolyfills.string
+    @within StdPolyfills
+  ]=]
+	string = string,
 }

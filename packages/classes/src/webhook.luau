@@ -8,13 +8,17 @@
 ]=]
 
 local apiTypes = require("../lune_packages/api_types")
+local util = require("../lune_packages/util")
 local state = require("../lune_packages/state")
 local rest = require("../lune_packages/rest")
 local future = require("../luau_packages/future")
 local message = require("./message/message")
+local stdPolyfills = require("../lune_packages/std_polyfills")
 
 local user = require("./user")
 local channelBehaviour = require("./channels/behaviour/channel")
+
+local String = stdPolyfills.string
 
 type WebhookModify = {
 	name: string?,
@@ -45,6 +49,13 @@ end
 function Webhook.Prototype.edit(self: Webhook, data: WebhookModify): future.FutureLike<string, Webhook>
 	return future.Future.new(function()
 		local data: WebhookModify = data or {} :: WebhookModify
+
+		if data.avatar and not String.startsWith(data.avatar, "data:") then
+			local avatar = util.dataResolver.resolveImage(data.avatar)
+			if avatar then
+				data.avatar = avatar
+			end
+		end
 
 		local channel = if data.channel and data.channel.id then data.channel.id else data.channel
 		local request = self.state.rest:newRequest()
