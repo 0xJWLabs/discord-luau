@@ -54,12 +54,7 @@ function DataResolver.resolveImage(image: string?, content_type: string?): strin
 	end
 
 	local file = DataResolver.resolveFile(image)
-	print(file)
-
-	local result = file and DataResolver.resolveBase64(file.data, file.contentType) or nil
-
-	print(result)
-	return result
+	return file and DataResolver.resolveBase64(file.data, file.contentType) or nil
 end
 
 return DataResolver
