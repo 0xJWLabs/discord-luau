@@ -21,9 +21,7 @@ function DataResolver.resolveFile(resource: string): ResolvedFile?
 				return { data = res.body, contentType = res.headers["content-type"] :: string }
 			end
 
-			warn(`Data Resolver: {res.statusMessage}`)
-			warn(`Data Resolver: {res.statusCode}`)
-			warn(`Data Resolver: {res.body}`)
+			error(`Data Resolver: {res.statusMessage} ({res.statusCode})\n{res.body}`)
 
 			return nil
 		else
@@ -40,7 +38,7 @@ end
 
 function DataResolver.resolveBase64(resource: string?, content_type: string?): string?
 	if resource then
-		local contentType = content_type or "image/jpg"
+		local contentType = content_type and string.lower(content_type) or "image/jpg"
 		return `data:{contentType};base64,{base64.encode(resource)}`
 	end
 
@@ -56,8 +54,12 @@ function DataResolver.resolveImage(image: string?, content_type: string?): strin
 	end
 
 	local file = DataResolver.resolveFile(image)
+	print(file)
 
-	return file and DataResolver.resolveBase64(file.data, file.contentType) or nil
+	local result = file and DataResolver.resolveBase64(file.data, file.contentType) or nil
+
+	print(result)
+	return result
 end
 
 return DataResolver
