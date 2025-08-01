@@ -79,7 +79,7 @@ direct = ["rest", { workspace = "discord_luau/rest", version = "^" }, "standard"
 
 [graph."discord_luau/rest@0.0.1 lune".dependencies]
 api_types = ["discord_luau/api_types@0.0.1 lune", "standard"]
-future = ["yetanotherclown/luau_futures@2.0.0-beta.3 luau", "standard"]
+future = ["lune_utils/futures@0.1.0 luau", "standard"]
 std_polyfills = ["discord_luau/std_polyfills@0.0.1 lune", "standard"]
 
 [graph."discord_luau/rest@0.0.1 lune".pkg_ref]
@@ -88,7 +88,7 @@ path = "packages/rest"
 
 [graph."discord_luau/rest@0.0.1 lune".pkg_ref.dependencies]
 api_types = [{ workspace = "discord_luau/api_types", version = "^" }, "standard"]
-future = [{ name = "yetanotherclown/luau_futures", version = "^2.0.0-beta.3", index = "https://github.com/pesde-pkg/index", target = "luau" }, "standard"]
+future = [{ repo = "https://github.com/lune-utils/futures.git", rev = "6ce822d" }, "standard"]
 std_polyfills = [{ workspace = "discord_luau/std_polyfills", version = "^" }, "standard"]
 
 [graph."discord_luau/secret@0.0.1 luau".pkg_ref]
@@ -144,7 +144,7 @@ path = "packages/utilities"
 api_types = ["discord_luau/api_types@0.0.1 lune", "standard"]
 buffer = ["discord_luau/buffer@0.0.1 luau", "standard"]
 emitter = ["discord_luau/emitter@0.0.1 luau", "standard"]
-future = ["yetanotherclown/luau_futures@2.0.0-beta.3 luau", "standard"]
+future = ["lune_utils/futures@0.1.0 luau", "standard"]
 logger = ["discord_luau/logger@0.0.1 lune", "standard"]
 secret = ["discord_luau/secret@0.0.1 luau", "standard"]
 std_polyfills = ["discord_luau/std_polyfills@0.0.1 lune", "standard"]
@@ -158,15 +158,17 @@ path = "packages/websocket"
 api_types = [{ workspace = "discord_luau/api_types", version = "^" }, "standard"]
 buffer = [{ workspace = "discord_luau/buffer", version = "^", target = "luau" }, "standard"]
 emitter = [{ workspace = "discord_luau/emitter", version = "^", target = "luau" }, "standard"]
-future = [{ name = "yetanotherclown/luau_futures", version = "^2.0.0-beta.3", index = "https://github.com/pesde-pkg/index", target = "luau" }, "standard"]
+future = [{ repo = "https://github.com/lune-utils/futures.git", rev = "6ce822d" }, "standard"]
 logger = [{ workspace = "discord_luau/logger", version = "^" }, "standard"]
 secret = [{ workspace = "discord_luau/secret", version = "^", target = "luau" }, "standard"]
 std_polyfills = [{ workspace = "discord_luau/std_polyfills", version = "^" }, "standard"]
 util = [{ workspace = "discord_luau/util", version = "^" }, "standard"]
 
-[graph."yetanotherclown/luau_futures@2.0.0-beta.3 luau"]
-direct = ["future", { name = "yetanotherclown/luau_futures", version = "^2.0.0-beta.3", index = "default", target = "luau" }, "standard"]
+[graph."lune_utils/futures@0.1.0 luau"]
+direct = ["future", { repo = "https://github.com/lune-utils/futures.git", rev = "6ce822d" }, "standard"]
 
-[graph."yetanotherclown/luau_futures@2.0.0-beta.3 luau".pkg_ref]
-ref_ty = "pesde"
-index_url = "https://github.com/pesde-pkg/index"
+[graph."lune_utils/futures@0.1.0 luau".pkg_ref]
+ref_ty = "git"
+repo = "https://github.com/lune-utils/futures.git"
+tree_id = "3ea05bed2e62268168ef7a9d619d96c9add4c866"
+new_structure = true

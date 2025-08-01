@@ -32,7 +32,7 @@ local Webhook = {}
 Webhook.Interface = {}
 Webhook.Prototype = {}
 
-function Webhook.Prototype.createMessageAsync(self: Webhook, data: apiTypes.ExecuteWebhookRequest)
+function Webhook.Prototype.send(self: Webhook, data: apiTypes.ExecuteWebhookRequest)
 	return future.Future.new(function()
 		local request = self.state.rest:newRequest()
 

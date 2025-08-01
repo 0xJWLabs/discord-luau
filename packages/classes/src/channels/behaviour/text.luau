@@ -103,7 +103,7 @@ end
 	@within Classes.TextBehaviour
 	Creates a new message in the channel. Returns the created message object.
 ]=]
-function TextBehaviour.Prototype.createMessageAsync<T>(self: Channel<T>, json: builders.messageJSON)
+function TextBehaviour.Prototype.send<T>(self: Channel<T>, json: builders.messageJSON)
 	return future.Future.new(function()
 		local request = self.state.rest:newRequest()
 
