@@ -166,7 +166,7 @@ function Interaction.Prototype.build(self: Interaction): JSON
 	end
 
 	for _, interactionType in self.integrationTypes do
-		table.insert(integrationTypeArray, apiTypes.interaction.IntegrationTypesConfig[interactionType])
+		table.insert(integrationTypeArray, apiTypes.application.IntegrationTypesConfig[interactionType])
 	end
 
 	return {
@@ -184,7 +184,7 @@ function Interaction.Prototype.build(self: Interaction): JSON
 		default_permission = nil :: any,
 		integration_types = integrationTypeArray,
 		contexts = contexts,
-		type = apiTypes.application.ApplicationCommandType[self.type] or nil,
+		type = apiTypes.interaction.ApplicationCommandType[self.type] or nil,
 		nsfw = self.nsfw,
 	}
 end

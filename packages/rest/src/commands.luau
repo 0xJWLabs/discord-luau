@@ -1,5 +1,6 @@
 local future = require("../luau_packages/future")
 local apiTypes = require("../lune_packages/api_types")
+local stdPolyfills = require("../lune_packages/std_polyfills")
 
 local request = require("./request")
 
@@ -61,7 +62,7 @@ function commands.createGlobalApplicationCommandAsync(
 
 		instance:setMethod("POST")
 		instance:setUrl(string.format(apiTypes.rest.endpoints.CreateGlobalApplicationCommand, applicationId))
-		instance:setBody(apiTypes.rest.endpoints.encode("json", jsonParams, true))
+		instance:setBody(stdPolyfills.serde.encode("json", jsonParams, true))
 
 		local response = instance:executeAsync():await()
 
