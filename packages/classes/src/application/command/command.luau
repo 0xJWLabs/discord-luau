@@ -37,12 +37,20 @@ function Command.Prototype.sync(self: Command, commandData: apiTypes.Application
 
 	-- fixme: need to use `next` iterator here to avoid LSP errors.
 	for _, integrationType in next, commandData.integration_types or {} do
-		table.insert(integrationTypeArray, apiTypes.application.IntegrationTypesConfig[integrationType])
+		if typeof(integrationType) == "number" then
+			table.insert(integrationTypeArray, integrationType)
+		else
+			table.insert(integrationTypeArray, apiTypes.application.IntegrationTypesConfig[integrationType])
+		end
 	end
 
 	-- fixme: need to use `next` iterator here to avoid LSP errors.
 	for _, context in next, commandData.contexts or {} do
-		table.insert(integrationTypeArray, apiTypes.interaction.InteractionContextType[context])
+		if typeof(context) == "number" then
+			table.insert(integrationTypeArray, context)
+		else
+			table.insert(integrationTypeArray, apiTypes.interaction.InteractionContextType[context])
+		end
 	end
 
 	--[=[
