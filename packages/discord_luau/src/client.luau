@@ -47,7 +47,9 @@ Client.Prototype = {}
 	This function sends a request to the Discord Gateway to retrieve information
 	about the bot, such as the recommended number of shards and session start limit.
 ]=]
-function Client.Prototype.queryGatewayInformation(self: Client): future.FutureLike<string, apiTypes.GetGatewayBotResponse>
+function Client.Prototype.queryGatewayInformation(
+	self: Client
+): future.FutureLike<string, apiTypes.GetGatewayBotResponse>
 	return future.Future.new(function()
 		local request = self.state.rest:newRequest()
 
@@ -72,11 +74,15 @@ end
 	Returns a async that resolves when the connection is established.
 ]=]
 function Client.Prototype.login(self: Client, token: string): future.FutureLike<string, nil>
-  self.state:setToken(token)
+	self.state:setToken(token)
 	return future.Future.new(function()
 		local gatewayInformation = self:queryGatewayInformation():await()
 
-		assert(gatewayInformation:isOk(), gatewayInformation:unwrapErr())
+		if not gatewayInformation:isOk() then
+			self.logger:emergency(`Failed to retrieve gateway information: {gatewayInformation:unwrapErr()}`)
+
+			error(gatewayInformation:unwrapErr())
+		end
 
 		self.state.webSocketManager.onAllShardsReady:listen(function(data)
 			local application = classes.application.application.new(self.state, data.payload.d.application)
@@ -88,6 +94,14 @@ function Client.Prototype.login(self: Client, token: string): future.FutureLike<
 			self.state:setApplicationId(application.id)
 
 			self.onAllShardsReady:invoke()
+		end)
+
+		self.state.webSocketManager.onDisconnected:listen(function(data)
+			self.onShardDisconnected:invoke(data.shardId, data.errorCode)
+		end)
+
+		self.state.webSocketManager.onReconnected:listen(function(data)
+			self.onShardReconnected:invoke(data.shardId)
 		end)
 
 		self.state.webSocketManager.onDispatch:listen(function(object: {
@@ -409,7 +423,10 @@ end
 
 	This function sends a request to the Discord API to retrieve information about a Group DM channel.
 ]=]
-function Client.Prototype.getGroupDMChannelAsync(self: Client, channelId: string): future.FutureLike<string, classes.GroupDM>
+function Client.Prototype.getGroupDMChannelAsync(
+	self: Client,
+	channelId: string
+): future.FutureLike<string, classes.GroupDM>
 	return future.Future.new(function()
 		local channel = self:getChannelAsync(channelId):await():unwrapOk()
 
@@ -496,7 +513,10 @@ end
 
 	This function sends a request to the Discord API to retrieve information about a text channel.
 ]=]
-function Client.Prototype.getTextChannelAsync(self: Client, channelId: string): future.FutureLike<string, classes.GuildText>
+function Client.Prototype.getTextChannelAsync(
+	self: Client,
+	channelId: string
+): future.FutureLike<string, classes.GuildText>
 	return future.Future.new(function()
 		local channel = self:getChannelAsync(channelId):await():unwrapOk()
 
@@ -614,7 +634,10 @@ end
 
 	This function sends a request to the Discord API to retrieve information about a voice channel.
 ]=]
-function Client.Prototype.getVoiceChannelAsync(self: Client, channelId: string): future.FutureLike<string, classes.GuildVoice>
+function Client.Prototype.getVoiceChannelAsync(
+	self: Client,
+	channelId: string
+): future.FutureLike<string, classes.GuildVoice>
 	return future.Future.new(function()
 		local channel = self:getChannelAsync(channelId):await():unwrapOk()
 
@@ -673,9 +696,9 @@ function Client.Interface.new(options: {
 	logLevel: logger.LogLevel?,
 	globalRatelimit: number?,
 })
-  if typeof(options.intents) == "table" then
-    options.intents = builders.intents.new(options.intents):build()
-  end
+	if typeof(options.intents) == "table" then
+		options.intents = builders.intents.new(options.intents):build()
+	end
 
 	local self = setmetatable(
 		{
@@ -792,6 +815,18 @@ export type Client =
 			@within DiscordLuau.Client
 		]=]
 		onAllShardsReady: emitter.Emitter<()>,
+
+		--[=[
+			@prop onShardDisconnected Emitter<number, string>
+			@within DiscordLuau.Bot
+		]=]
+		onShardDisconnected: emitter.Emitter<number, string>,
+
+		--[=[
+			@prop onShardReconnected Emitter<number>
+			@within DiscordLuau.Bot
+		]=]
+		onShardReconnected: emitter.Emitter<number>,
 
 		--[=[
 			@prop onMessage Emitter<Classes.Message>
