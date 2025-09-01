@@ -644,7 +644,7 @@ type MessageAcitvityType__DARKLUA_TYPE_h = "Join" | "Spectate" | "Listen" | "Joi
 
 type MessageReferenceType__DARKLUA_TYPE_i = "Default" | "Forward"
 
-type ButtonStyle__DARKLUA_TYPE_j = "Blurple" | "Grey" | "Green" | "Red" | "Grey"
+type ButtonStyle__DARKLUA_TYPE_j = "Primary" | "Secondary" | "Danger" | "Link" | "Premium"
 
 type SelectDefaultValueType__DARKLUA_TYPE_k = "User" | "Role" | "Channel"
 
@@ -4278,10 +4278,12 @@ do
 		}))
 
 		local f = table.freeze(b.tableReflect({
-			Blurple = 1,
-			Grey = 2,
-			Green = 3,
-			Red = 4,
+      Primary = 1,
+      Secondary = 2,
+      Success = 3,
+      Danger = 4,
+      Link = 5,
+      Premium = 6
 		}))
 
 		local g = table.freeze(b.tableReflect({

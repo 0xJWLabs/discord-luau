@@ -57,10 +57,12 @@ local MessageReferenceType = table.freeze(util.tableReflect({
 }))
 
 local ButtonStyle = table.freeze(util.tableReflect({
-	Blurple = 1,
-	Grey = 2,
-	Green = 3,
-	Red = 4,
+	Primary = 1,
+	Secondary = 2,
+	Success = 3,
+	Dange = 4,
+	Link = 5,
+	Premium = 6,
 }))
 
 local TextInputStyle = table.freeze(util.tableReflect({
@@ -125,7 +127,7 @@ export type MessageType =
 export type MessageAcitvityType = "Join" | "Spectate" | "Listen" | "JoinRequest"
 export type MessageReferenceType = "Default" | "Forward"
 
-export type ButtonStyle = "Blurple" | "Grey" | "Green" | "Red" | "Grey"
+export type ButtonStyle = "Primary" | "Secondary" | "Success" | "Danger" | "Link" | "Premium"
 
 export type SelectDefaultValueType = "User" | "Role" | "Channel"
 
