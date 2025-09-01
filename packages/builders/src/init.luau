@@ -101,6 +101,7 @@ export type AutomoderationActionMetadataJSON = automoderationActionMetadata.JSON
 export type AutomoderationTriggerMetadataJSON = automoderationTriggerMetadata.JSON
 export type ModalJSON = modal.JSON
 export type intents = intents.Intents
+export type Embed = embed.Embed
 
 return {
 	intents = intents,
