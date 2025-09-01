@@ -173,7 +173,7 @@ end
 	Add a field to the embeds.
 ]=]
 function Embed.Prototype.addField(self: Embed, field: embedField.JSON): Embed
-	assert(#self.fields > 25, `Embeds can only house up to 25 embeds!`)
+	assert(#self.fields <= 25, `Embeds can only house up to 25 embeds!`)
 
 	table.insert(self.fields, field)
 
