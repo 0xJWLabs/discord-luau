@@ -79,8 +79,9 @@ end
 
 	Set the timestamp of the embed, timestamps will exist at the bottom/footer of the embed.
 ]=]
-function Embed.Prototype.setTimestamp(self: Embed, timestamp: stdPolyfills.DateTime): Embed
-	self.timestamp = timestamp:toRfc3339()
+function Embed.Prototype.setTimestamp(self: Embed, timestamp: stdPolyfills.DateTime?): Embed
+	local fixedTimestamp = timestamp or stdPolyfills.datetime.now()
+	self.timestamp = fixedTimestamp:toRfc3339()
 
 	return self
 end
@@ -193,7 +194,7 @@ function Embed.Prototype.build(self: Embed): JSON
 		type = apiTypes.embed.EmbedType[self.type],
 		description = self.description,
 		url = self.url,
-		timestamp = tostring(self.timestamp),
+		timestamp = self.timestamp,
 		color = self.color,
 		footer = self.footer,
 		image = self.image,
