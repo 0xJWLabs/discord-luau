@@ -80,7 +80,7 @@ end
 	Set the timestamp of the embed, timestamps will exist at the bottom/footer of the embed.
 ]=]
 function Embed.Prototype.setTimestamp(self: Embed, timestamp: stdPolyfills.DateTime): Embed
-	self.timestamp = timestamp.unixTimestampMillis
+	self.timestamp = timestamp:toRfc3339()
 
 	return self
 end
