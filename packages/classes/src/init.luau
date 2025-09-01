@@ -2,7 +2,6 @@ local provider = require("@self/embed/provider")
 local field = require("@self/embed/field")
 local thumbnail = require("@self/embed/thumbnail")
 local embed = require("@self/embed/embed")
-local embedBuilder = require("@self/embed/embedBuilder")
 local author = require("@self/embed/author")
 local image = require("@self/embed/image")
 local footer = require("@self/embed/footer")
@@ -236,7 +235,6 @@ export type Footer = footer.Footer
 export type Image = image.Image
 export type Author = author.Author
 export type Embed = embed.Embed
-export type EmbedBuilder = embedBuilder.EmbedBuilder
 export type Thumbnail = thumbnail.Thumbnail
 export type Field = field.Field
 export type AutomoderationRule = automoderationRule.AutomoderationRule
@@ -414,7 +412,6 @@ return {
 		thumbnail = thumbnail,
 		field = field,
 		provider = provider,
-		embedBuilder = embedBuilder,
 	},
 	webhook = webhook,
 }

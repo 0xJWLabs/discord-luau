@@ -4,21 +4,20 @@ local function resolveColor(color: Colors.ColorResolvable): number?
 	local resolvedColor
 
 	if typeof(color) == "string" then
-		if string.lower(color) == "random" then
+		local lowerColor = string.lower(color)
+		if lowerColor == "random" then
 			return math.floor(math.random() * (0xffffff + 1))
 		end
-		if color == "Default" then
+		if lowerColor == "default" then
 			return 0
 		end
-		local hex = color:match("^#?([%da-fA-F][%da-fA-F][%da-fA-F])$")
-			or color:match("^#?([%da-fA-F][%da-fA-F][%da-fA-F][%da-fA-F][%da-fA-F][%da-fA-F])$")
 
+		local hex = lowerColor:match("^(#?)(%x+)$")
 		if hex then
-			if #hex == 3 then
-				hex = hex:sub(1, 1):rep(2) .. hex:sub(2, 2):rep(2) .. hex:sub(3, 3):rep(2)
-			end
-
-			return tonumber(hex, 16) :: number
+			local hexValue = hex:gsub(".", function(char)
+				return #hex == 3 and char .. char or char
+			end)
+			return tonumber(hexValue, 16)
 		end
 
 		resolvedColor = Colors[color]
