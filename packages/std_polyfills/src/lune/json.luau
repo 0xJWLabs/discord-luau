@@ -1,9 +1,6 @@
 --!strict
 
-local json = {
-	--- Not actually a nil value, a newproxy stand-in for a null value since Luau has no actual representation of `null`
-	NULL = newproxy() :: nil,
-}
+local json = {}
 
 type JSONPrimitive = nil | number | string | boolean
 type Object = { [string]: Value }
@@ -188,9 +185,7 @@ end
 serializeAny = function(state: SerializerState, value: Value)
 	local valueType = type(value)
 
-	if value == json.NULL then
-		writeString(state, "null")
-	elseif valueType == "boolean" then
+	if valueType == "boolean" then
 		writeString(state, if value then "true" else "false")
 	elseif valueType == "number" then
 		writeString(state, tostring(value))
@@ -435,10 +430,7 @@ deserialize = function(state: DeserializerState): Value
 
 	local fourChars = string.sub(state.src, state.cursor, state.cursor + 3)
 
-	if fourChars == "null" then
-		state.cursor += 4
-		return json.NULL
-	elseif fourChars == "true" then
+	if fourChars == "true" then
 		state.cursor += 4
 		return true
 	elseif string.sub(state.src, state.cursor, state.cursor + 4) == "false" then
