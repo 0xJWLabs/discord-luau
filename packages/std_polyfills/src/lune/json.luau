@@ -47,11 +47,11 @@ local function writeSpaces(state: SerializerState)
 	end
 
 	if state.prettyPrint then
-		checkState(state, state.depth * 1)
+		checkState(state, state.depth * 4)
 
 		for i = 0, state.depth do
 			buffer.writeu32(state.buf, state.cursor, 0x_20_20_20_20)
-			state.cursor += 1
+			state.cursor += 4
 		end
 	else
 		buffer.writeu8(state.buf, state.cursor, string.byte(" "))
@@ -152,16 +152,9 @@ local function serializeTable(state: SerializerState, object: Object)
 
 	state.depth += 1
 
-	local keys = {}
-	for key in object do
-		table.insert(keys, key)
-	end
-	table.sort(keys) -- sort keys alphabetically
-
-	for i, key in keys do
-		local value = object[key]
-
-		if i ~= 1 then
+	local first = true
+	for key, value in object do
+		if not first then
 			writeByte(state, string.byte(","))
 			writeByte(state, string.byte(" "))
 
@@ -169,6 +162,8 @@ local function serializeTable(state: SerializerState, object: Object)
 				writeByte(state, string.byte("\n"))
 			end
 		end
+
+		first = false
 
 		writeSpaces(state)
 
@@ -465,11 +460,11 @@ end
 
 -- user-facing
 
-function json.serialize(value: Value, pretty: boolean?)
+json.serialize = function(value: Value, prettyPrint: boolean?)
 	local state: SerializerState = {
 		buf = buffer.create(1024),
 		cursor = 0,
-		prettyPrint = pretty or false,
+		prettyPrint = prettyPrint or false,
 		depth = 0,
 	}
 
@@ -478,7 +473,7 @@ function json.serialize(value: Value, pretty: boolean?)
 	return buffer.readstring(state.buf, 0, state.cursor)
 end
 
-function json.deserialize(src: string)
+json.deserialize = function(src: string)
 	local state = {
 		src = src,
 		cursor = 0,
